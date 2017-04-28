@@ -14,10 +14,11 @@ module.exports = function keepUpdate(opts) {
     console.log('Running command: ', opts.cmd);
 
     function tick() {
+        let commandOut;
         try {
-            const commandOut = execSync(opts.cmd);
+            commandOut = execSync(opts.cmd);
         } catch (e) {
-            console.error(e, commandOut);
+            console.log("output", e, commandOut);
         }
 
         if (commandOut && commandOut.indexOf("CONFLICT") > -1) {
