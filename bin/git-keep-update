@@ -8,9 +8,13 @@ const debug = require('debug')('git-keep-update');
 program
   .version(require("../package").version)
   .arguments('[directories...]')
-  .option('-i, --check-interval [interval]', 
-    'Recheck for changes in upstream branch every n seconds. '+
-    'If this option is given, the process will run forever', Number, 10 )
+  .option('-i, --check-interval [interval]',
+    'Recheck for changes in upstream branch every n seconds. ' +
+    'If this option is given, the process will run forever',
+     Number, 10)
+  .option('-c, --command [command]',
+    'Recheck for changes in upstream branch every n seconds. ',
+     String, "git pull origin master")
   .parse(process.argv);
 
 function isGitRepo(dir) {
@@ -20,7 +24,7 @@ function isGitRepo(dir) {
 function validateGitRepoDir(dir) {
   if (!isGitRepo(dir)) {
     console.log("validate");
-    console.error("Error: '"+dir+"' is not a git repository");
+    console.error("Error: '" + dir + "' is not a git repository");
     process.exit(1);
   }
   return dir;
@@ -35,7 +39,8 @@ repoDirs.map(function (dir) {
   var opts = {
     always: program.always,
     checkInterval: program.checkInterval,
-    cwd: path.resolve(dir)
+    cwd: path.resolve(dir),
+    cmd: program.command
   };
 
   debug("Initializing watcher on %s, with options %o", dir, opts);

@@ -1,6 +1,6 @@
-const check = require("./check");
 const debug = require('debug')('git-keep-update');
 const _ = require('lodash');
+const exec = require('child_process').exec;
 
 const DEFAULT_OPTIONS = {
     cwd: process.cwd,
@@ -10,26 +10,14 @@ const DEFAULT_OPTIONS = {
 module.exports = function keepUpdate(opts) {
 
     opts = _.defaults(opts, DEFAULT_OPTIONS);
+    opts.checkInterval = opts.checkInterval * 1000;
 
-    const cwd = opts.cwd;
-    const checkInterval = opts.checkInterval * 1000;
-    const notifyInterval = opts.notifyInterval * 1000;
-
-console.log(opts)
-
-    if (opts.checkInterval) {
-        function tick() {
-            check(cwd, function (err, status) {
-                onCheck(err, status);
-                setTimeout(tick, checkInterval)
-            })
-        }
-        return tick();
+    console.log('Running command: ', opts.cmd);
+    function tick() {
+        exec(opts.cmd, { timeout: 1000 * 60 * 5 }, (err, res) => {
+            console.log(res);
+            setTimeout(tick, opts.checkInterval)
+        })
     }
-
-    check(cwd, onCheck);
-
-    function onCheck(err, status) {
-        console.log(err, status);
-    }
+    return tick();
 }
