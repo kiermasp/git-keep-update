@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const program = require('commander');
+const keepUpdate = require('../');
+const path = require('path');
+const debug = require('debug')('git-keep-update');
+
+program
+  .version(require("../package").version)
+  .arguments('[directories...]')
+  .option('-i, --check-interval [interval]', 
+    'Recheck for changes in upstream branch every n seconds. '+
+    'If this option is given, the process will run forever', Number, 10 )
+  .parse(process.argv);
+
+function isGitRepo(dir) {
+  return fs.existsSync(path.join(dir, ".git"));
+}
+
+function validateGitRepoDir(dir) {
+  if (!isGitRepo(dir)) {
+    console.log("validate");
+    console.error("Error: '"+dir+"' is not a git repository");
+    process.exit(1);
+  }
+  return dir;
+}
+
+// Recursively find all repo directories below the dirs given by the args list
+var repoDirs = program.args.map(validateGitRepoDir)
+
+console.log(repoDirs);
+
+repoDirs.map(function (dir) {
+  var opts = {
+    always: program.always,
+    checkInterval: program.checkInterval,
+    cwd: path.resolve(dir)
+  };
+
+  debug("Initializing watcher on %s, with options %o", dir, opts);
+
+  keepUpdate(opts);
+});
