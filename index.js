@@ -15,7 +15,13 @@ module.exports = function keepUpdate(opts) {
     console.log('Running command: ', opts.cmd);
     function tick() {
         exec(opts.cmd, { timeout: 1000 * 60 * 5 }, (err, res) => {
-            console.log(res);
+            console.log("process response", res);
+            if(res.idnexOf("CONFLICT") > -1) {
+                console.log("Open mergeTool")
+                exec('git mergetool', (err, response)=>{
+
+                })
+            }
             setTimeout(tick, opts.checkInterval)
         })
     }
