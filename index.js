@@ -10,11 +10,15 @@ const DEFAULT_OPTIONS = {
 module.exports = function keepUpdate(opts) {
     opts = _.defaults(opts, DEFAULT_OPTIONS);
     opts.checkInterval = opts.checkInterval * 1000;
-    
+
     console.log('Running command: ', opts.cmd);
 
     function tick() {
-        const commandOut = execSync(opts.cmd);
+        try {
+            const commandOut = execSync(opts.cmd);
+        } catch (e) {
+            console.error(e, commandOut);
+        }
 
         if (commandOut && commandOut.indexOf("CONFLICT") > -1) {
             console.log("Open mergeTool");
