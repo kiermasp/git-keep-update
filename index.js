@@ -18,11 +18,12 @@ module.exports = function keepUpdate(opts) {
             console.log("process response", res);
             if(res && res.indexOf("CONFLICT") > -1) {
                 console.log("Open mergeTool")
-                exec('git mergetool', (err, response)=>{
-
+                exec('git mergetool', (err, res)=>{
+                   console.log("Open mergeTool response ", res);
                 })
+            } else {
+                setTimeout(tick, opts.checkInterval)
             }
-            setTimeout(tick, opts.checkInterval)
         })
     }
     return tick();
