@@ -4,36 +4,29 @@ const program = require('commander');
 const keepUpdate = require('../');
 const path = require('path');
 const debug = require('debug')('git-keep-update');
+const _ = require('lodash');
 
 program
   .version(require("../package").version)
   .arguments('[directories...]')
   .option('-i, --check-interval [interval]',
-    'Recheck for changes in upstream branch every n seconds. ' +
-    'If this option is given, the process will run forever',
-     Number, 10)
+  'Recheck for changes in upstream branch every n seconds. ' +
+  'If this option is given, the process will run forever',
+  Number, 10)
   .option('-c, --command [command]',
-    'Recheck for changes in upstream branch every n seconds. ',
-     String, "git pull origin master")
+  'Recheck for changes in upstream branch every n seconds. ',
+  String, "git pull origin master")
   .parse(process.argv);
 
-function isGitRepo(dir) {
-  return fs.existsSync(path.join(dir, ".git"));
+
+const dirs = [];
+if (program.args.length === 0) {
+  dirs.push('.')
 }
 
-function validateGitRepoDir(dir) {
-  if (!isGitRepo(dir)) {
-    console.log("validate");
-    console.error("Error: '" + dir + "' is not a git repository");
-    process.exit(1);
-  }
+var repoDirs = dirs.map(function validateGitRepoDir(dir) {
   return dir;
-}
-
-// Recursively find all repo directories below the dirs given by the args list
-var repoDirs = program.args.map(validateGitRepoDir)
-
-console.log(repoDirs);
+})
 
 repoDirs.map(function (dir) {
   var opts = {
