@@ -1,6 +1,6 @@
 const debug = require('debug')('git-keep-update');
 const _ = require('lodash');
-const exec = require('child_process').exec;
+const execSync = require('child_process').execSync;
 
 const DEFAULT_OPTIONS = {
     cwd: process.cwd,
@@ -8,23 +8,20 @@ const DEFAULT_OPTIONS = {
 };
 
 module.exports = function keepUpdate(opts) {
-
     opts = _.defaults(opts, DEFAULT_OPTIONS);
     opts.checkInterval = opts.checkInterval * 1000;
-
+    
     console.log('Running command: ', opts.cmd);
+
     function tick() {
-        exec(opts.cmd, { timeout: 1000 * 60 * 5 }, (err, res) => {
-            console.log("process response", res);
-            if(res && res.indexOf("CONFLICT") > -1) {
-                console.log("Open mergeTool")
-                exec('git mergetool', (err, res)=>{
-                   console.log("Open mergeTool response ", res);
-                })
-            } else {
-                setTimeout(tick, opts.checkInterval)
-            }
-        })
+        const commandOut = execSync(opts.cmd);
+
+        if (commandOut && commandOut.indexOf("CONFLICT") > -1) {
+            console.log("Open mergeTool");
+            const mergeToolOut = execSync('git mergetool');
+        }
+        setTimeout(tick, opts.checkInterval);
     }
+
     return tick();
 }
